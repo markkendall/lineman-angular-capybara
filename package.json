@@ -1,0 +1,17 @@
+{
+  "name": "lineman-angular-capybara",
+  "title": "A sample LinemanJS app using AngularJS and rspec/capybara for integration testing",
+  "version": "0.0.1",
+  "private": true,
+  "author": {
+    "name": "Mark Kendall",
+    "company": "Envy Labs"
+  },
+  "devDependencies": {
+    "lineman": "~0.15.1"
+  },
+  "engines": {
+    "node": "~>0.10.5",
+    "npm": "~>1.2.18"
+  }
+}
