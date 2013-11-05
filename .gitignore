@@ -1,5 +1,6 @@
 /dist
 /generated
+/node_modules
 
 .sass-cache
 .DS_Store
