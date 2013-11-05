@@ -17,18 +17,20 @@ module.exports = require(process.env['LINEMAN_MAIN']).config.extend('application
   loadNpmTasks: [
     "grunt-angular-templates",
     "grunt-concat-sourcemap",
+    "grunt-haml",
     "grunt-ngmin"
   ],
 
   // we don't use the lineman default concat, handlebars, and jst tasks by default
   removeTasks: {
-    common: ["concat", "handlebars", "jst"]
+    common: ["concat", "handlebars", "jst", "pages:dev"],
+    dist: ["pages:dist"]
   },
 
   // task override configuration
   prependTasks: {
-    dist: ["ngmin"],        // ngmin should run in dist only
-    common: ["ngtemplates"] // ngtemplates runs in dist and dev
+    common: ["haml", "ngtemplates"],
+    dist: ["ngmin"]
   },
 
   // swaps concat_sourcemap in place of vanilla concat
@@ -36,14 +38,40 @@ module.exports = require(process.env['LINEMAN_MAIN']).config.extend('application
     common: ["concat_sourcemap"]
   },
 
+  // configuration for grunt-haml
+  haml: {
+    pages: {
+      files: [
+        {
+          expand: true,
+          cwd: "app/pages",
+          src: ["**/*.haml"],
+          dest: "generated/",
+          ext: ".html"
+        },
+      ]
+    },
+    templates: {
+      files: [
+        {
+          expand: true,
+          cwd: "app/templates",
+          src: ["**/*.haml"],
+          dest: "generated/angular/templates/",
+          ext: ".html"
+        },
+      ]
+    }
+  },
+
   // configuration for grunt-angular-templates
   ngtemplates: {
     app: { // "app" matches the name of the angular module defined in app.js
       options: {
-        base: "app/templates"
+        prefix: "/app/templates"
       },
-      src: "app/templates/**/*.html",
-      // puts angular templates in a different spot than lineman looks for other templates in order not to conflict with the watch process
+      cwd: "generated/angular/templates",
+      src: "**/*.html",
       dest: "generated/angular/template-cache.js"
     }
   },
@@ -81,9 +109,13 @@ module.exports = require(process.env['LINEMAN_MAIN']).config.extend('application
   // and recompile angular templates, also swaps lineman default
   // watch target concat with concat_sourcemap
   watch: {
+    pages: {
+      files: ["<%= files.pages.source %>"],
+      tasks: ["haml:pages"]
+    },
     ngtemplates: {
-      files: "app/templates/**/*.html",
-      tasks: ["ngtemplates", "concat_sourcemap:js"]
+      files: "app/templates/**/*.haml",
+      tasks: ["haml:templates", "ngtemplates", "concat_sourcemap:js"]
     },
     js: {
       files: ["<%= files.js.vendor %>", "<%= files.js.app %>"],
